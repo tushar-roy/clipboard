@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clipboard Text Copy</title>
+</head>
+<style>
+    /* Style for the container */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+/* Style for the input fields and button */
+input[type="text"] {
+    width: 300px;
+    padding: 10px;
+    margin: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+button {
+    background-color: #007BFF;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+/* Style for the text list container */
+#textList {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    max-width: 400px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+/* Style for each user-added text entry */
+#textList div {
+    margin-bottom: 10px;
+}
+
+/* Style for the delete button */
+#textList button {
+    background-color: #ff4d4d;
+    color: #fff;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: 10px;
+}
+
+/* Style for the h2 heading */
+#textList h2 {
+    color: #007BFF;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+</style>
+<body>
+
+<!-- Your HTML content goes here -->
+
+<!-- Input fields for adding new text and shortcut -->
+<input type="text" id="newText" placeholder="Enter new text">
+<input type="text" id="newShortcut" placeholder="Enter shortcut key">
+<button onclick="addNewText()">Add Text</button>
+
+<!-- Div to display user-added text and shortcuts -->
+<div id="textList">
+    <h2>User-Added Text</h2>
+    <!-- User-added text will be displayed here -->
+</div>
+
+<script>
+    // Function to copy text to clipboard
+    function copyToClipboard(textToCopy) {
+        const textField = document.createElement('textarea');
+        textField.innerText = textToCopy;
+        document.body.appendChild(textField);
+        textField.select();
+        document.execCommand('copy');
+        textField.remove();
+    }
+
+    // Event listener for key presses
+    document.addEventListener('keydown', function(event) {
+        const shortcut = event.key.toUpperCase();
+        const text = localStorage.getItem(shortcut);
+        if (text) {
+            copyToClipboard(text);
+        }
+    });
+
+    // Function to add new text and shortcut
+    function addNewText() {
+        const newText = document.getElementById('newText').value;
+        const newShortcut = document.getElementById('newShortcut').value.toUpperCase();
+
+        if (newText && newShortcut) {
+            // Store the new text and shortcut in local storage
+            localStorage.setItem(newShortcut, newText);
+            //alert(`Text "${newText}" with shortcut "${newShortcut}" added.`);
+
+            // Clear input fields
+            document.getElementById('newText').value = '';
+            document.getElementById('newShortcut').value = '';
+
+            // Update the displayed list of user-added text
+            updateTextList();
+        } else {
+            alert('Please enter both text and a shortcut.');
+        }
+    }
+
+    // Function to update the displayed list of user-added text
+    function updateTextList() {
+        const textListDiv = document.getElementById('textList');
+        textListDiv.innerHTML = '<h2>User-Added Text</h2>';
+        
+        // Loop through local storage and display user-added text and shortcuts
+        for (let i = 0; i < localStorage.length; i++) {
+            const shortcut = localStorage.key(i);
+            const text = localStorage.getItem(shortcut);
+            
+            // Create a div for each entry with a delete button
+            const entryDiv = document.createElement('div');
+            entryDiv.innerHTML = `<strong>${shortcut}:</strong> ${text} <button onclick="deleteText('${shortcut}')">Delete</button>`;
+            
+            textListDiv.appendChild(entryDiv);
+        }
+    }
+
+    // Function to delete user-added text
+    function deleteText(shortcut) {
+        localStorage.removeItem(shortcut);
+        updateTextList();
+    }
+
+    // Initial update of the text list when the page loads
+    updateTextList();
+</script>
+
+</body>
+</html>
